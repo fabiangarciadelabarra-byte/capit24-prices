@@ -4,33 +4,34 @@ export const config = {
 
 export default async function handler(req) {
   try {
-    const [cgRes, binBTC, binETH] = await Promise.all([
+    const [cg, binanceBTC, binanceETH] = await Promise.all([
       fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd"),
       fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"),
       fetch("https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT")
     ]);
 
-    const cg = await cgRes.json();
-    const btc = await binBTC.json();
-    const eth = await binETH.json();
+    const cgData = await cg.json();
+    const btcBinance = await binanceBTC.json();
+    const ethBinance = await binanceETH.json();
 
     return new Response(
       JSON.stringify({
         BTC: {
-          coingecko: cg.bitcoin.usd,
-          binance: parseFloat(btc.price),
+          coingecko: cgData.bitcoin.usd,
+          binance: btcBinance.price
         },
         ETH: {
-          coingecko: cg.ethereum.usd,
-          binance: parseFloat(eth.price),
+          coingecko: cgData.ethereum.usd,
+          binance: ethBinance.price
         }
       }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { headers: { "Content-Type": "application/json" } }
     );
+
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: "API error", details: err.message }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }
