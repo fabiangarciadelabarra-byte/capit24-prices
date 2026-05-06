@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+export default async function handler(request) {
   try {
     const [coingeckoRes, binanceRes, krakenRes] = await Promise.all([
       fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd"),
@@ -10,16 +10,23 @@ export default async function handler(req, res) {
     const binance = await binanceRes.json();
     const kraken = await krakenRes.json();
 
-    return res.status(200).json({
-      success: true,
-      sources: {
-        coingecko,
-        binance,
-        kraken,
-      },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        sources: {
+          coingecko,
+          binance,
+          kraken,
+        },
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ success: false, error: "Internal error" });
+    return new Response(
+      JSON.stringify({ success: false, error: "Internal error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
+
