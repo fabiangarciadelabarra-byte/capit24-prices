@@ -1,21 +1,25 @@
-export const config = {
-  runtime: "edge",
-};
-
-export default async function handler(req) {
+export default async function handler(req, res) {
   try {
-    const btc = await fetch("https://api.coindesk.com/v1/bpi/currentprice.json").then(r => r.json());
+    const [coingeckoRes, binanceRes, krakenRes] = await Promise.all([
+      fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd"),
+      fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"),
+      fetch("https://api.kraken.com/0/public/Ticker?pair=BTCUSD"),
+    ]);
 
-    return new Response(
-      JSON.stringify({
-        price: btc.bpi.USD.rate_float,
-        time: btc.time.updatedISO
-      }),
-      { status: 200 }
-    );
-  } catch (error) {
-    return new Response(JSON.stringify({ error: "Error fetching BTC price" }), {
-      status: 500
+    const coingecko = await coingeckoRes.json();
+    const binance = await binanceRes.json();
+    const kraken = await krakenRes.json();
+
+    return res.status(200).json({
+      success: true,
+      sources: {
+        coingecko,
+        binance,
+        kraken,
+      },
     });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, error: "Internal error" });
   }
 }
