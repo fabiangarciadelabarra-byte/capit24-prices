@@ -4,5 +4,6 @@
     "api/*.js": {
       "runtime": "nodejs18.x"
     }
-  }
+  },
+  "buildCommand": "echo 'Using Node runtime'"
 }
