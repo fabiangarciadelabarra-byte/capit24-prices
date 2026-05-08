@@ -1,4 +1,4 @@
-import getPrice from "./getPrice";
+import getPrice from "./getPrice.js";
 
 let cache = {
   all: null,
@@ -24,3 +24,4 @@ export default async function handler(req, res) {
 
   return res.status(200).json(results);
 }
+
