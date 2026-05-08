@@ -1,4 +1,4 @@
-import getPrice, { maps } from "./getPrice";
+import getPrice from "./getPrice";
 
 let cache = {
   all: null,
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(200).json(cache.all);
   }
 
-  const symbols = Object.keys(maps.geckoMap);
+  const symbols = ["btc", "eth", "sol", "xmr", "aave"];
   const results = {};
 
   for (const s of symbols) {
